@@ -49,35 +49,42 @@ public int search(const vector<int>& nums,int target)
 }
 
 2.1.5 median of two arrays
-//两个排好序的数列，找到
-s
-// ᬥ䬣฼ᱱᏕ O(log(m+n))喌⾩䬣฼ᱱᏕ O(log(m+n))
-class Solution {
-public:
-double findMedianSortedArrays(const vector<int>& A, const vector<int>& B) {
-const int m = A.size();
-const int n = B.size();
-int total = m + n;
-if (total & 0x1)
-return find_kth(A.begin(), m, B.begin(), n, total / 2 + 1);
-else
-return (find_kth(A.begin(), m, B.begin(), n, total / 2)
-+ find_kth(A.begin(), m, B.begin(), n, total / 2 + 1)) / 2.0;
+//两个排好序的数列，找到所有元素第k个大的元素
+
+//第一个思路，记录当前最大的元素为第m大的元素
+//两个指针，分别指向最开始的元素，比较当前元素的大小，若大小不一样，相应小的元素列往前移，并且累计的第m的值+1
+//但是还是O(m+n)的复杂度
+
+// 时间复杂度O(log(m+n)) 空间复杂度 O(log(m+n))
+class Solution 
+{
+	//
+public: double findMedianSortedArrays(const vector<int>& A, const vector<int>& B) 
+	{
+	const int m = A.size();
+	const int n = B.size();
+	int total = m + n;
+	if (total & 0x1)
+	return find_kth(A.begin(), m, B.begin(), n, total / 2 + 1);
+	else
+	return (find_kth(A.begin(), m, B.begin(), n, total / 2)
+	+ find_kth(A.begin(), m, B.begin(), n, total / 2 + 1)) / 2.0;
+	}
+	
+private: static int find_kth(std::vector<int>::const_iterator A, int m,
+std::vector<int>::const_iterator B, int n, int k) 
+	{
+		//always assume that m is equal or smaller than n
+		if (m > n) return find_kth(B, n, A, m, k);
+		if (m == 0) return *(B + k - 1);
+		if (k == 1) return min(*A, *B);
+		//divide k into two parts
+		int ia = min(k / 2, m), ib = k - ia;
+		if (*(A + ia - 1) < *(B + ib - 1))
+		return find_kth(A + ia, m - ia, B, n, k - ia);
+		else if (*(A + ia - 1) > *(B + ib - 1))
+		return find_kth(A, m, B + ib, n - ib, k - ib);
+		else
+		return A[ia - 1];
+	}
 }
-private:
-static int find_kth(std::vector<int>::const_iterator A, int m,
-std::vector<int>::const_iterator B, int n, int k) {
-//always assume that m is equal or smaller than n
-if (m > n) return find_kth(B, n, A, m, k);
-if (m == 0) return *(B + k - 1);
-if (k == 1) return min(*A, *B);
-//divide k into two parts
-int ia = min(k / 2, m), ib = k - ia;
-if (*(A + ia - 1) < *(B + ib - 1))
-return find_kth(A + ia, m - ia, B, n, k - ia);
-else if (*(A + ia - 1) > *(B + ib - 1))
-return find_kth(A, m, B + ib, n - ib, k - ib);
-else
-return A[ia - 1];
-}
-};
