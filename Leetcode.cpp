@@ -64,6 +64,7 @@ public: double findMedianSortedArrays(const vector<int>& A, const vector<int>& B
 	const int m = A.size();
 	const int n = B.size();
 	int total = m + n;
+	//首先，考虑m+n的奇偶性，然后开始执行递归
 	if (total & 0x1)
 	return find_kth(A.begin(), m, B.begin(), n, total / 2 + 1);
 	else
@@ -71,13 +72,19 @@ public: double findMedianSortedArrays(const vector<int>& A, const vector<int>& B
 	+ find_kth(A.begin(), m, B.begin(), n, total / 2 + 1)) / 2.0;
 	}
 	
-private: static int find_kth(std::vector<int>::const_iterator A, int m,
-std::vector<int>::const_iterator B, int n, int k) 
+private: static int find_kth(std::vector<int>::const_iterator A, int m, B, int n, int k) 
 	{
-		//always assume that m is equal or smaller than n
+		//递归终止条件，一个为空，直接返回；第A[k/2] == B[k/2] 找到我们要查找的数字
+		
+		//a假设m总是小于等于n的，如果不是，将A 和B 的次序颠倒进行二分查找即可
 		if (m > n) return find_kth(B, n, A, m, k);
+		//个数小的一个首先为空，即返回当前查找两个数组的B数组的当前的第K个即可
 		if (m == 0) return *(B + k - 1);
+		//特殊情况，如果只找第一个，也就是最小的元素，直接返回
 		if (k == 1) return min(*A, *B);
+		//现在比较A[k/2] B[k/2] 的大小，注意这里有个前提是m > k/2,n>k/2,现在m<=n,所以有可能m<k/2
+		//如果m>k/2,k/2都落在AB数组范围内，正常进行划分查找就可以
+		//如果m<k/2,直接取A数组前m个数字，也就是A下一次成空。B取以k-m为二分查找的分界线
 		//divide k into two parts
 		int ia = min(k / 2, m), ib = k - ia;
 		if (*(A + ia - 1) < *(B + ib - 1))
@@ -88,3 +95,128 @@ std::vector<int>::const_iterator B, int n, int k)
 		return A[ia - 1];
 	}
 }
+
+2.1.6 无序表里找连续序列最大的长度，时间空间均为n
+
+//解法一 先排序，再找，复杂度为nlogn
+
+//解法二 哈希表
+class Solution 
+
+	public:
+	int longestConsecutive(const vector<int> &nums) 
+	{
+		unordered_map<int, bool> used;
+		//初始化表，标注每一个元素为false
+		for (auto i : nums) used[i] = false;
+			int longest = 0;
+		for (auto i : nums) 
+		{
+			if (used[i]) continue;
+			int length = 1;
+			used[i] = true;
+			//顺藤摸瓜，一个方向上的连续数字都做标记
+			for (int j = i + 1; used.find(j) != used.end(); ++j) //判断该元素j是否存在于该map中
+			{
+				used[j] = true;
+				++length;
+			}
+			for (int j = i - 1; used.find(j) != used.end(); --j) 
+			{
+				used[j] = true;
+				++length;
+			}
+			longest = max(longest, length);
+		}
+		return longest;
+	}
+}
+
+//解法三
+
+2.1.7 给定一个数组，一个数字，找出两个数字加起来等于该数字，返回大小下下标--2SUM
+
+//解法一 暴力搜索，o(n*n)
+//解法二 hash 存储下每个数对应的下标
+vector<int> twoSum(vector<int>&nums,int target)
+{
+	unordered_map<int,int> mapping;
+	vector<int> result;
+	for (int i = 0;i<nums.size();i++)
+	{
+		mappimg[nums[i]] = i;//存储的是数组里每个元素的下标
+	}
+	for(int i =0;i<nums.size();i++)
+	{
+		int gap = target - nums[i];
+		if(mapping.find(gap)!= mapping.end() && mapping[gap]>i)//避免重复查找
+		{
+			result.push_back(i+1);
+			result.push_back(mapping[gap]+1);
+			break;			
+		}
+		return result;
+	}
+}
+
+//解法三 排序 然后头指针、尾指针从前到后夹逼
+//2 sum
+int i = starting; //头指针
+int j = num.size() - 1; //尾指针
+while(i < j) {
+    int sum = num[i] + num[j];
+    if(sum == target) {
+        store num[i] and num[j] somewhere;
+        if(we need only one such pair of numbers)
+            break;
+        otherwise
+            do ++i, --j;
+    }
+    else if(sum < target)
+        ++i;
+    else
+        --j;
+}
+
+
+2.1.8 3SUM
+
+//解法 先排序，再左右夹逼，跳过重复的数字，时间O(n*n) 空间O(1) 简化成2SUM问题
+
+2.1.11 给出序列，删除指定value
+
+//解法一 直接便利 时间n
+//解法二 利用vector
+public : removeElement(vector<int> &nums,int target)
+{
+	return distance(nums.begin,remove(nums.begin(),nums.end(),target))
+}
+
+
+2.1.12 下一个排列算法
+
+//解法一 不知道什么解法
+//https://www.jianshu.com/p/0fb544271bb5
+
+//解法二 
+//1 从右到左，找到第一个破坏升序排列的数字，记为 PartitionNumber
+//从右到左，几下第一个比这个PartitionNumber大的数字，记为ChangeNumber
+//交换这两个Number
+//PartitionIndex右边的所有序列，逆序操作
+/*
+6--8--7--4--3--2(6 - partionNumber,7-changeNumber,0-partionIndex)
+7--8--6--4--3--2(swap)
+7--2--3--4--6--8(reverse)
+*/ 
+
+2.1.13 继承2.1.12 找到第K个序列
+
+//解法一 暴力使用 下一个排列算法
+//解法二 康拓编码???
+
+2.1.14 判断数独是否有效
+
+
+
+
+
