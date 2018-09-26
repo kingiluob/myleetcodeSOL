@@ -216,7 +216,65 @@ public : removeElement(vector<int> &nums,int target)
 
 2.1.14 判断数独是否有效
 
+//行、列、九宫格都要检查，思路是设置一个bool[9]的数组，分别检测和即可，有重复数字返回false
+
+2.1.15 雨量计算器
+
+//解法一 时间n 空间n
+//对于每一个柱子，分别找左边和右边的最高的柱子
+//比如柱子数组是a[length]
+//记录左右最大柱子的数组为b[length*2]
+
+for (i = 0;i<length;i++)
+{
+	if(i = 0)
+	{
+		b[2*i] = 0;
+	}
+	if(i = length -1)
+	{
+		b[2*i + 1 ] = 0;
+	}
+	b[left] = b [2*i] =  a[i-1];
+	b[right] = b[2*2 +1]  = a[i+1];
+	//left search
+	for(j = i-1;j>=0;j--)
+	{
+		if (a [j] > left)
+			b [2*i] = a[j];	
+	}
+	//...
+}
+
+//解法二 利用最大值，分两半，时间n，空间1
+int trap(const vector<int>& A) 
+{
+	const int n = A.size();
+	int max = 0; 
+	for (int i = 0; i < n; i++)	
+		if(A[i] > A[max])
+			max = i;
+	int water = 0;
+	for (int i = 0, peak = 0; i < max; i++)
+	{
+		if (A[i] > peak) 
+			peak = A[i];
+		else 
+			water += peak - A[i];
+	}
+		
+	for (int i = n - 1, top = 0; i > max; i--)
+	{
+		if (A[i] > top)
+			top = A[i];
+		else 
+			water += top - A[i];
+	}	
+	return water;
+}
 
 
+2.1.16 图像反转-顺时针90度
 
-
+//思路一 对角线一次，水平翻转一次
+//时间n*n 空间1
