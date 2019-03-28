@@ -161,7 +161,7 @@ public:
         {
             return "";
         }
-
+    
     }
 };
 
@@ -238,6 +238,694 @@ public:
 	}
 };
 
+## 翻转字符串
+//解法一 两个栈
+class Solution
+{
+public:
+    std::string reverseWords(std::string s)
+    {        
+        std::stack<char> stk1;
+        std::stack<char> stk2;
+        std::string s2;
+        //首先将字符串全部退入栈1
+        for(int i = 0;i<s.size();i++)
+        {
+            stk1.push(s[i]);
+        }
+        //借助另外一个栈，将栈1的推入栈2，如果遇到空的，就把2清空，将结果放入目标字符串
+        do
+        {
+            char temp =stk1.top();
+            //std::cout<<temp;
+            if( temp != ' ')
+            {
+                stk2.push(temp);
+            }
+            else
+            {
+                if(!stk2.empty())
+                {
+                    do
+                {
+                    s2.append(1,stk2.top());
+                    stk2.pop();
+                }
+                while(!stk2.empty());
+                
+                s2.append(1,' ');
+                }                
+            }
+            stk1.pop();
+        }
+        while(!stk1.empty());
+        //最后剩一个单词
+        do
+        {
+            s2.append(1,stk2.top());
+            stk2.pop();
+        }
+        while(!stk2.empty());
+        return s2;
+    }
+};
 
+## 三数之和
+class Solution {
+public:
+	vector<vector<int>> threeSum(vector<int>& nums) {
+		vector<vector<int>> res;
+		sort(nums.begin(),nums.end());
+        if (nums.empty() || nums.back() < 0 || nums.front() > 0) return {};
+		for (int i = 0; i< nums.size(); ++i){
+			if (nums[i]>0) break;
+			if(i>0 && nums[i] == nums[i-1] ) continue;
+			int target = 0 - nums[i];
+			int j = i + 1;
+			int k = nums.size()-1;
+			while (j<k){
+				if (nums[j] + nums[k] == target){
+					res.push_back({ nums[i],nums[j],nums[k] });
+					while (j<k && nums[j] == nums[j + 1]) ++j;
+					while (j<k && nums[k] == nums[k - 1]) --k;
+					++j;--k;
+				}else if (nums[j] + nums[k] < target)	++j;
+				else  --k;
+			}
+		}
+		return res;
+	}
+};
+
+## 岛屿最大面积
+递归解决，已经便利过的给个标记，如果面积是1，递归四个方向
+class Solution {
+public:
+    int maxAreaOfIsland(vector<vector<int>>& grid) {
+        int area = 0,maxarea = 0;
+        for (int i =0;i<grid.size();i++)
+        {
+            for(int j =0;j<grid[0].size();j++)
+            {
+                if(grid[i][j] ==1)
+                {
+                    area = dfs(grid,i,j);
+                    if(area > maxarea) maxarea = area;
+                }
+            }
+        }
+        return maxarea;
+    }
+    int dfs(vector<vector<int>>& grid,int x,int y)
+    {
+        if( x<0 || y<0 || x >= grid.size() || y >= grid[0].size() || grid[x][y]!=1 )
+            return 0;
+        else
+        {
+            grid[x][y] = 2;
+            return dfs(grid,x-1,y) + dfs(grid,x,y-1) + dfs(grid,x+1,y) + dfs(grid,x,y+1) +1;
+        }
+    }
+};
+
+## 搜索旋转数列中的某个值
+二分查找，一半是有序的
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        return mysearch(nums, 0, nums.size() - 1, target);
+    }
+    private:
+        int mysearch(vector<int>& nums, int low, int high, int target) {
+        if (low > high)
+            return -1;
+        int mid = (low + high) / 2;
+        if (nums[mid] == target)
+            return mid;
+        if (nums[mid] < nums[high]) {
+            if (nums[mid] < target && target <= nums[high])
+                return mysearch(nums, mid + 1, high, target);
+            else
+                return mysearch(nums, low, mid - 1, target);
+        } else {
+            if (nums[low] <= target && target < nums[mid])
+                return mysearch(nums, low, mid - 1, target);
+            else
+                return mysearch(nums, mid + 1, high, target);
+        }
+    }
+};
+
+##三角形最小路径和
+class Solution {
+public:
+    int minimumTotal(vector<vector<int>>& triangle) {
+        //1 直接从上往下取最小，最后出现问题
+        //2 这个问题应该是从下往上的贪心问题？好像也不对[-1][1,3][1,-2,-3]
+        //3 这是一个典型的动态规划问题啊，中间节点记录到该点的最短路径：A 从上往下，需要n*n的空间/原地解决 B 从下往上，借助n的空间
+        int length =triangle.size();
+        if(length== 0)
+            return 0;
+        vector<int> mark(length+1,0);
+        for(int i = length-1;i>=0;i--)
+        {
+            for(int j = 0;j<=i;j++)
+            {
+                mark[j] = min(mark[j],mark[j+1]) + triangle[i][j];
+            }
+        }
+        return mark[0];
+    }
+};
+## 最大子序和，返回的是和
+动态规划问题
+当前最大的子序和 ＝ max(当前元素的值，前i－1个元素的最大子序和)
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        if(nums.size() == 0) return NULL;
+        int res = INT_MIN;
+        int f_n = -1;
+        for(int i = 0; i < nums.size(); ++i){
+            f_n = max(nums[i], f_n + nums[i]);
+            res = max(f_n, res);
+        }
+        return res;
+    }
+};
+## 合并区间问题
+/**
+ * Definition for an interval.
+ * struct Interval {
+ *     int start;
+ *     int end;
+ *     Interval() : start(0), end(0) {}
+ *     Interval(int s, int e) : start(s), end(e) {}
+ * };
+ */
+class Solution {
+public:
+    vector<Interval> merge(vector<Interval>& intervals) {
+        //[[1,3],[2,6],[8,10],[15,18]]
+        //首先根据首位进行排序
+        //记录一个头和一个尾巴，注意如果下一个头小于上一个尾巴，要判断是不是尾巴的大小
+        if(intervals.size()<1)
+            return intervals;
+        vector<Interval> result;
+        Interval mark(0,0);
+        for(int i =0;i<intervals.size();i++)
+        {
+            int max = intervals[i].start;
+            int k = i;
+            for(int j = i+1;j<intervals.size();j++)
+            {
+                if(intervals[j].start< max)
+                {
+                    max = intervals[j].start;
+                    k = j;
+                }
+            }
+            mark = {intervals[i].start,intervals[i].end};
+            intervals[i] = intervals[k];
+            intervals[k] = mark;
+        }
+        int start = intervals[0].start;
+        int end = intervals[0].end;
+        for(int i =0;i<intervals.size();i++)
+        {
+            if(intervals[i].start<= end)
+                end = max(end,intervals[i].end);
+            else
+            {
+                Interval temp(start,end);
+                result.push_back(temp);
+                start = intervals[i].start;
+                end = intervals[i].end;
+            }
+        }
+        
+        Interval newtemp(start,end);
+        result.push_back(newtemp);
+        return result;
+    }
+};
+##接雨水问题
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        //找每一个柱子左右两边的最高点，柱子上能盛的水就是最低点min（left，right）－height
+        int length = height.size();
+        vector<int> left(length+2,0);
+        vector<int> right(length+2,0);
+        for(int i =1;i<length+1;i++)
+        {
+            left[i] = max(left[i-1],height[i-1]);
+            right[length+1-i] = max(right[length +2-i],height[length-i]);
+        }
+        int sum = 0;
+        for(int i =1;i<length +1;i++)
+        {
+            sum = sum + min(left[i],right[i]) - height[i-1];
+        }
+        return sum;
+    }
+};
+## 平方根
+class Solution {
+public:
+    int mySqrt(int x )
+    {
+        long y = x;
+        long result = 0;
+        if(y < 2 ) return y;
+        for(long i = 0;i <= y;i++)
+        {
+            if(i*i <=y) continue;
+            else
+            {
+                result = i-1;
+                break;
+            }
+        }
+        return result;
+    }
+};
+
+## 朋友圈
+事件复杂度还是在n*n，借助一个辅助向量做遍历标记。
+class Solution {
+public:
+    int findCircleNum(vector<vector<int>>& M) {
+        //DFS
+        vector<int> mark(M.size(),0);
+        int count = 0;
+        for(int i = 0;i< M.size();i++)
+        {
+            if(mark[i] == 0)
+            {
+                count++;
+                dfs(M,i,mark);
+            }
+        }
+        return count;
+    }
+    void dfs(vector<vector<int>>& M,int i,vector<int>& mark)
+    {
+        mark[i] = 1;
+        for(int j = 0;j<M.size();j++)
+        {
+            if(M[i][j] ==1 && mark[j] == 0) dfs(M,j,mark);
+        }
+    }
+};
+
+## 最长连续序列，未排序
+先排序，然后直接算。
+class Solution {
+public:
+    int longestConsecutive(vector<int>& nums) {
+        if(nums.size()<=1)
+        {
+            return nums.size();
+        }
+        sort(nums.begin(),nums.end());
+        int length = 0,maxlength = 0;
+        //0,1,1,2
+        for(int i = 0;i<nums.size()-1;i++)
+        {
+            if( nums[i]+1 == nums[i+1]) 
+                length ++;
+            else if(nums[i] == nums[i+1])
+                continue;
+            else
+            {              
+                length = 0;
+            }
+            if(length > maxlength)
+                    maxlength = length;
+        }
+        return maxlength+1;
+    }
+};
+
+## 两链表数字相加
+class Solution {
+public:
+    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+        int carry = 0;
+        ListNode* dummy = new ListNode(-1);
+        ListNode* p = dummy;
+        while (l1 || l2)
+        {
+            int val1 = l1 ? l1->val : 0;
+            int val2 = l2 ? l2->val : 0;
+            int val = val1 + val2 + carry;
+            carry = val / 10;
+            val %= 10;
+            p->next = new ListNode(val);
+            if (l1)
+                l1 = l1->next;
+            if (l2)
+                l2 = l2->next;
+            p = p->next;
+        }
+        if (carry)
+            p->next = new ListNode(carry);
+        return dummy->next;
+    }
+};
+
+## 翻转链表
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        //非递归算法
+        if(head == NULL || head->next == NULL)
+            return head;
+        ListNode * pre = head;
+        ListNode * p  = head->next;
+        ListNode * next = NULL;
+        while(p != NULL)
+        {
+            next  = p->next;
+            p->next = pre;
+            pre = p;
+            p = next;
+        }
+        head->next = NULL;
+        return pre;
+        // //递归算法
+        // if(head == NULL || head->next == NULL)
+        //     return head;
+        // ListNode Node= reverse(head);
+        // head->next = NULL;
+        // return Node;
+    }
+    ListNode * reverse(ListNode * p)
+    {
+        if(p->next == NULL) return p;
+        else
+        {
+            ListNode * next = p->next;
+            ListNode * tail = reverse(next);
+            next->next = p;
+            return tail;
+        }
+    }
+    
+    
+};
+
+## 最小的栈
+
+class MinStack {
+    int  * items = NULL;
+    int count;
+    int * minitems = NULL;
+    int mincount;
+    int size = 1000;
+    /** initialize your data structure here. */
+    public:
+    MinStack() {
+        items = new int[size];
+        minitems = new int[size];
+        count = 0;
+        mincount = 0;
+    }
+    
+    void push(int x) {
+        if(count == size || mincount == size) return;
+        if(mincount == 0  || minitems[mincount -1 ] >= x)
+        {
+            minitems[mincount] = x;
+            ++mincount;
+        }
+        items[count] = x;
+        ++count;
+    }
+    
+    void pop() {
+        if(count == 0 || mincount == 0)
+            return;
+        if(items[count -1] == minitems[mincount -1])
+            --mincount;
+        --count;
+    }
+    
+    int top() {
+        if(count ==0 || mincount == 0) return -1;
+        return items[count -1];
+    }
+    
+    int getMin() {
+        if(mincount == 0 ) return -1;
+        return minitems[mincount -1];
+    }
+};
+
+
+## 最大的正方形
+动态规划问题，右下角要成为正方形的一个角，则左上方三个数字都必须是正方形的角。
+class Solution {
+public:
+    int maximalSquare(vector<vector<char>>& matrix) {
+        if(matrix.size()==0)
+        {
+            return 0;
+        }
+       int ans  =0 ;
+        vector<vector<int>> my;
+        my.resize(matrix.size());
+	    for (int i = 0; i < matrix.size(); ++i)
+		    my[i].resize(matrix[0].size());
+        
+        for(int i=1;i<matrix.size();i++)
+        {
+        for(int j=1;j<matrix[0].size();j++)
+        {
+            if(my[i][j]==0)continue;
+            my[i][j]=min(min(my[i-1][j],my[i][j-1]),my[i-1][j-1])+1;             //动态方程
+        }
+        }
+        
+    for(int i=1;i<matrix.size();i++)
+    {
+        for(int j=1;j<matrix[0].size();j++)
+        {
+            if(my[i][j]>ans)ans=my[i][j];                  //找到最大值
+        }
+    }
+        return ans*ans;
+    }
+};
+
+## 股票1 只买入和卖出一次
+
+第i天卖出的最大收益 ＝ 
+max(前i－1天的最大收益，p[i] - 前i－1天的最小价格)
+
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int current = 0;
+        int min = 0;
+        for(int i =0;i<prices.size();i++)
+        {
+            min = findmin(prices,i);
+            if(current<(prices[i] - min))
+            current = prices[i] - min;
+        } 
+        return current;
+    }
+    int findmin(vector<int>& prices,int x)
+    {
+        int temp = prices[0];
+        for(int i = 0;i< x;i++)
+        {
+            if(prices[i]<temp)
+                temp = prices[i];
+        }
+        return temp;
+    }
+};
+## 股票2 买入和卖出多次，当天可以买入再卖出
+只要后一天比前一天大，就前一天买入，第二天卖出。最大收益就是这样每一天的集合。
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int current = 0;
+        int min = 0;
+        for(int i =0;i<prices.size();i++)
+        {
+            min = findmin(prices,i);
+            if(current<(prices[i] - min))
+            current = prices[i] - min;
+        } 
+        return current;
+    }
+    int findmin(vector<int>& prices,int x)
+    {
+        int temp = prices[0];
+        for(int i = 0;i< x;i++)
+        {
+            if(prices[i]<temp)
+                temp = prices[i];
+        }
+        return temp;
+    }
+};
+## 合并两个有序链表
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        ListNode * result = new ListNode(0);
+        ListNode * temp = result;
+        while(l1 != NULL && l2!=NULL)
+        {
+            if(l1->val <= l2->val)
+            {
+                
+                temp->next = l1;
+                temp= temp->next;
+                l1 = l1->next;
+            }
+            else
+            {
+                temp->next = l2;
+                temp= temp->next;
+                l2 = l2->next;
+            }
+        }
+        if(l1 == NULL) {
+            temp->next = l2;
+        }else {
+            temp->next = l1;
+        }
+        return result->next;
+    }
+};
+
+## 未排序的数组中找到第 k 个最大的元素
+class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        sort(nums.begin(),nums.end());
+        if(k==1)
+            return nums[nums.size()-1];
+        int temp = 1,i = nums.size()-1;
+        while(i>=0)
+        {
+            if(i == (nums.size()-1)) i--;
+            else
+            {
+                temp++;
+                if(temp == k)
+                    break;
+                i--;
+            }
+        }
+        return nums[i];
+    }
+};
+
+## 最长连续递增的子序列
+注意，必须是连续的，所以这个相对来说比较简单，事件复杂度
+n遍历即可
+class Solution {
+public:
+    int findLengthOfLCIS(vector<int>& nums) 
+    {
+        if(nums.size()<1)return 0;
+        if(nums.size()==1)return 1;
+        int maxlength = 0,length =0,i =0,j =0;
+        while (i < nums.size())
+        {
+            if(i < (nums.size()-1))
+            {
+                if(nums[i]<nums[i+1])
+                {
+                    ++i;
+                }
+                else
+                {       
+                length = i -j;
+                if(length > maxlength)
+                    maxlength = length;
+                j = i+1;
+                ++i;
+                }
+            }
+            else
+                {       
+                length = i -j;
+                if(length > maxlength)
+                    maxlength = length;
+                j = i+1;
+                ++i;
+                }
+        }
+        return maxlength+1;
+    }
+};
+
+## 俄罗斯套娃信封问题
+注意最终转化为最长的递增序列，而不是子序列
+class Solution {
+public:
+     static bool cmp(pair<int,int> p1,pair<int,int> p2){
+        if(p1.first == p2.first) {
+            return p1.second  > p2.second;
+        }        
+        else{
+            return p1.first < p2.first;
+        }
+    }
+    int maxEnvelopes(vector<pair<int, int>>& e) 
+    {
+        //第一种思路：n*n的时间复杂度(其实是nlogn)，以宽度进行排序，然后比较高度，最终给出可能的最大信封数量。
+        //同样是先对宽度进行排序，从小到大，宽度相同的高度从大到小。
+        //因为宽度已经有序了，所以接下来问题就转化成求最长的递增子序列的长度（不是必须连续）
+         if(e.size() == 0) return 0;
+        sort(e.begin(),e.end(),cmp);
+        vector<int> dp(e.size(),1);
+        int mx = 1;
+        for(int i = 1; i < e.size(); i++)
+        {
+            for(int j = i - 1; j >= 0; j--)
+                if(e[j].second < e[i].second && dp[j] + 1 > dp[i])
+                {
+                    dp[i] = dp[j] + 1;
+                    mx = max(dp[i],mx);
+                }
+        }
+        return mx;
+        }
+};
+
+## 
+
+##
+
+##
+
+##
+
+##
 
 
