@@ -2,6 +2,12 @@
 /// theme: interview prepare leetcode solution
 /// time: 2019-03
 
+
+
+
+
+# 典型问题
+
 ## 无重复字符的最长子串
 
 //解法一 往死了循环
@@ -1285,21 +1291,115 @@ class MinStack {
 
 
 
+# 简单问题
 
+## 二叉树深度
 
-## 
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ * int val;
+ * TreeNode *left;
+ * TreeNode *right;
+ * TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+    */
+    class Solution {
+    public:
+    int maxDepth(TreeNode* root) {
+        if(root == NULL)
+            return 0;
+        return GetChildDepth(root);
+    }
+    int GetChildDepth(TreeNode* root)
+    {
+        if(root == NULL)
+            return 0;
+        else if(root->left == NULL && root->right == NULL)
+            return 1;
+        else
+            return max(GetChildDepth(root->left),GetChildDepth(root->right)) + 1 ;
+    }
+    };
 
-##
+## 二叉树最小深度
 
+class Solution {
+public:
+    int minDepth(TreeNode* root) {
+        if(!root)
+            return 0;
+        int left=minDepth(root->left),right=minDepth(root->right);
+        return (left && right) ? 1+min(left,right):1+left+right;
+    }
+};
 
+## 判断平衡二叉树
 
-## 
+每个节点左右子树的高度差不超过1
 
+递归每个节点的左右子树高度，高度也是递归得到。
 
+```
+class Solution {
+public:
+    bool isBalanced(TreeNode* root) {
+        if(!root)
+            return true;
+        if(abs(countFloor(root->left)-countFloor(root->right))>1)
+            return false;
+        else{
+            if(isBalanced(root->left) && isBalanced(root->right)){
+                return true;
+            }else
+                return false;
+        }
+    }
+    int countFloor(TreeNode* root){//计算树层高
+        if(!root)
+            return 0;
+        return 1+max(countFloor(root->left),countFloor(root->right));
+    }
+};
+```
 
-## 
+## 判断链表是否有环
 
+C++ 快慢指针
 
+```zephir
+class Solution {
+public:
+    bool hasCycle(ListNode *head) {
+        ListNode *fast=head,*slow=head;
+        while(fast&&fast->next){
+            slow=slow->next;
+            fast=fast->next->next;
+            if(fast==slow)
+                return true;
+        }
+        return false;
+    }
+};
+```
+
+方法二 哈希表
+
+```
+class Solution {
+public:
+    bool hasCycle(ListNode *head) {
+       map<ListNode*,int> hashMap;
+        ListNode* p=head;
+        while(p){
+            if(++hashMap[p]>1)
+                return true;
+            p=p->next;
+        }
+        return false;
+    }
+};
+```
 
 ## 
 
